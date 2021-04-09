@@ -28,16 +28,6 @@ export const HyperModelingWidget: React.FunctionComponent = () => {
   const [previous, setPrevious] = React.useState<Previous>();
 
   useEffect(() => {
-    if (undefined !== activeMarker) {
-      setActiveMarker(activeMarker);
-    }
-  }, [activeMarker]);
-
-  useEffect(() => {
-    setPrevious(previous);
-  }, [previous]);
-
-  useEffect(() => {
     if (viewport) {
       HyperModelingApi.enableHyperModeling(viewport)
         .then(() => {
