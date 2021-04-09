@@ -79,6 +79,7 @@ const App: React.FC = () => {
             iModelId={process.env.IMJS_IMODEL_ID ?? ""}
             authConfig={{ oidcClient: AuthorizationClient.oidcClient }}
             uiProviders={uiProviders}
+            theme={"dark"}
           />
         )
       )}
