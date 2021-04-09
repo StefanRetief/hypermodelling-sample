@@ -2,14 +2,14 @@
 * Copyright (c) Bentley Systems, Incorporated. All rights reserved.
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { SectionMarker } from "@bentley/hypermodeling-frontend";
 import { Button, Toggle } from "@bentley/ui-core";
-import { useActiveViewport } from "@bentley/ui-framework";
-import { ViewState } from "@bentley/imodeljs-frontend";
+import { IModelApp, ScreenViewport, ViewState } from "@bentley/imodeljs-frontend";
 import HyperModelingApi from "./HyperModelingApi";
 import { assert, Id64String } from "@bentley/bentleyjs-core";
-import { AbstractWidgetProps, StagePanelLocation, StagePanelSection, UiItemsProvider } from "@bentley/ui-abstract";
+import { AbstractWidgetProps, StagePanelLocation, StagePanelSection, UiItemsProvider, WidgetState } from "@bentley/ui-abstract";
+import { useActiveIModelConnection } from "@bentley/ui-framework";
 import "./HyperModeling.scss";
 
 interface Previous {
@@ -20,11 +20,18 @@ interface Previous {
 }
 
 export const HyperModelingWidget: React.FunctionComponent = () => {
-  const viewport = useActiveViewport();
-
-  const [toggle2dGraphics, setToggle2dGraphics] = React.useState<boolean>();
+  const iModelConnection = useActiveIModelConnection();
+  const [viewport, setViewport] = useState<ScreenViewport>();
+  const [toggle2dGraphics, setToggle2dGraphics] = React.useState<boolean>(true);
   const [activeMarker, setActiveMarker] = React.useState<SectionMarker>();
   const [previous, setPrevious] = React.useState<Previous>();
+
+  useEffect(() => {
+    const vp = IModelApp.viewManager.selectedView;
+    if (vp) {
+      setViewport(vp);
+    }
+  }, [iModelConnection]);
 
   useEffect(() => {
     if (viewport) {
@@ -34,7 +41,9 @@ export const HyperModelingWidget: React.FunctionComponent = () => {
             setActiveMarker(marker);
           });
         });
-      return () => { HyperModelingApi.disableHyperModeling(viewport); }
+      return () => {
+        HyperModelingApi.disableHyperModeling(viewport);
+      };
     }
     return;
   }, [viewport]);
@@ -47,8 +56,9 @@ export const HyperModelingWidget: React.FunctionComponent = () => {
   };
 
   const onClickSelectNewMarker = () => {
-    assert(undefined !== viewport);
-    HyperModelingApi.clearActiveMarker(viewport);
+    if (viewport) {
+      HyperModelingApi.clearActiveMarker(viewport);
+    }
   };
 
   const onClickSwitchTo2d = async (which: "sheet" | "drawing") => {
@@ -97,8 +107,7 @@ export const HyperModelingWidget: React.FunctionComponent = () => {
   );
 };
 
-
-export class HypermodelingWidgetProvider implements UiItemsProvider {
+export class HyperModelingWidgetProvider implements UiItemsProvider {
   public readonly id: string = "HypermodelingWidgetProvider";
 
   public provideWidgets(_stageId: string, _stageUsage: string, location: StagePanelLocation, _section?: StagePanelSection): ReadonlyArray<AbstractWidgetProps> {
@@ -107,7 +116,8 @@ export class HypermodelingWidgetProvider implements UiItemsProvider {
       widgets.push(
         {
           id: "HypermodelingWidget",
-          label: "Hypermodeling Controls",
+          label: "Hyper-Modeling Controls",
+          defaultState: WidgetState.Floating,
           // eslint-disable-next-line react/display-name
           getWidgetContent: () => <HyperModelingWidget />,
         }
