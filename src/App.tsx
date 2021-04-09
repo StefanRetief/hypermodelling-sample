@@ -4,9 +4,9 @@ import { Viewer } from "@bentley/itwin-viewer-react";
 import React, { useEffect, useState } from "react";
 import AuthorizationClient from "./AuthorizationClient";
 import { Header } from "./Header";
-import { HypermodelingWidgetProvider } from "./hypermodeling/HyperModelingWidget";
+import { HyperModelingWidgetProvider } from "./hypermodeling/HyperModelingWidget";
 
-const uiProviders = [new HypermodelingWidgetProvider()];
+const uiProviders = [new HyperModelingWidgetProvider()];
 
 const App: React.FC = () => {
   const [isAuthorized, setIsAuthorized] = useState(
