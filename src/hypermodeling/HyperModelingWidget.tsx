@@ -5,8 +5,8 @@
 import React, { useEffect } from "react";
 import { SectionMarker } from "@bentley/hypermodeling-frontend";
 import { Button, Toggle } from "@bentley/ui-core";
-import { useActiveIModelConnection, useActiveViewport } from "@bentley/ui-framework";
-import { IModelApp, ViewState } from "@bentley/imodeljs-frontend";
+import { useActiveViewport } from "@bentley/ui-framework";
+import { ViewState } from "@bentley/imodeljs-frontend";
 import HyperModelingApi from "./HyperModelingApi";
 import { assert, Id64String } from "@bentley/bentleyjs-core";
 import { AbstractWidgetProps, StagePanelLocation, StagePanelSection, UiItemsProvider } from "@bentley/ui-abstract";
@@ -20,7 +20,6 @@ interface Previous {
 }
 
 export const HyperModelingWidget: React.FunctionComponent = () => {
-  const iModelConnection = useActiveIModelConnection();
   const viewport = useActiveViewport();
 
   const [toggle2dGraphics, setToggle2dGraphics] = React.useState<boolean>();
@@ -62,11 +61,8 @@ export const HyperModelingWidget: React.FunctionComponent = () => {
   };
 
   const onToggle2dGraphics = (toggle: boolean) => {
-    if (iModelConnection) {
-      const vp = IModelApp.viewManager.selectedView;
-      if (vp) {
-        HyperModelingApi.toggle2dGraphics(toggle);
-      }
+    if (viewport) {
+      HyperModelingApi.toggle2dGraphics(toggle);
       setToggle2dGraphics(toggle);
     }
   };
@@ -110,8 +106,8 @@ export class HypermodelingWidgetProvider implements UiItemsProvider {
     if (location === StagePanelLocation.Right) {
       widgets.push(
         {
-          id: "HypermodellingWidget",
-          label: "Hypermodelling Controls",
+          id: "HypermodelingWidget",
+          label: "Hypermodeling Controls",
           // eslint-disable-next-line react/display-name
           getWidgetContent: () => <HyperModelingWidget />,
         }
